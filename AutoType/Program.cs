@@ -19,6 +19,7 @@ namespace AutoType
         OK                  =  0,
         NO_ARGUMENTS        =  1,
         NO_FILE_NAME        =  2,
+        NO_OVERRIDE         =  3,
         INVALID_FILE_NAME   =  4,
         FILE_NOT_FOUND      =  5,
         ACCESS_DENIED       =  8,
@@ -38,17 +39,22 @@ namespace AutoType
             Console.WriteLine("  AutoType --help");
             Console.WriteLine("  AutoType --version");
             Console.WriteLine("  AutoType --license");
-            Console.WriteLine("  AutoType [-m] filename\n");
+            Console.WriteLine("  AutoType [-m] filename [-oorchar]\n");
             Console.WriteLine("  --help      Prints this");
             Console.WriteLine("  --version   Prints the version");
             Console.WriteLine("  --license   Prints the license");
             Console.WriteLine("  -m          Memorization Mode:  Only prints if the key you");
             Console.WriteLine("              pressed is the same as the character in the file");
+            Console.WriteLine("              NOTE:  Newlines might not work in this mode");
+            Console.WriteLine("              Consider using the -o option as well.");
+            Console.WriteLine("  -o          Specifies a character to override -m and print anyway");
+            Console.WriteLine("  orchar      The character for the -o option");
             Console.WriteLine("  filename    Specifies the filename\n");
             Console.WriteLine("Return values:");
             Console.WriteLine("   0 - OK");
             Console.WriteLine("   1 - No arguments");
             Console.WriteLine("   2 - No file name");
+            Console.WriteLine("   3 - No override");
             Console.WriteLine("   4 - Invalid file name");
             Console.WriteLine("   5 - File not found");
             Console.WriteLine("   8 - Access denied");
@@ -73,7 +79,7 @@ namespace AutoType
             try
             {
                 if (args.Length == 0)
-                    throw new InvalidArgumentsException("No arguments were supplied!", ExitCode.NO_ARGUMENTS);
+                    throw new InvalidArgumentsException("No arguments were supplied!  (Run AutoType --help from a command line for help.)", ExitCode.NO_ARGUMENTS);
                 if (args[0] == "--help")
                     Help();
                 if (args[0] == "--version")
@@ -85,10 +91,18 @@ namespace AutoType
                     throw new InvalidArgumentsException("No filename was supplied!", ExitCode.NO_FILE_NAME);
                 FileStream file = new FileStream(memorizationMode ? args[1] : args[0], FileMode.Open, FileAccess.Read);
                 StreamReader fileAsText = new StreamReader(file);
+                bool overrideEnabled = (args.Length > (memorizationMode ? 2 : 1) && args[memorizationMode ? 2 : 1].StartsWith("-o"));
+                char overrideCharacter = '\0';
+                if (overrideEnabled)
+                {
+                    if (args[memorizationMode ? 2 : 1].Length < 3)
+                        throw new InvalidArgumentsException("No override character was supplied!", ExitCode.NO_OVERRIDE);
+                    overrideCharacter = args[memorizationMode ? 2 : 1][2];
+                }
                 while (!fileAsText.EndOfStream)
                 {
                     ConsoleKeyInfo key = Console.ReadKey(true);
-                    if (!memorizationMode || key.KeyChar == (char)fileAsText.Peek())
+                    if (!memorizationMode || key.KeyChar == (char)fileAsText.Peek() || (overrideEnabled && overrideCharacter == key.KeyChar))
                         Console.Write((char)fileAsText.Read());
                 }
                 fileAsText.Close();
