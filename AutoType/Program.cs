@@ -64,7 +64,7 @@ namespace AutoType
 
         static void Version( )
         {
-            Console.WriteLine("AutoType v2.0.0 beta https://github.com/benjidial/AutoType/releases/tag/v2.0.0-beta1");
+            Console.WriteLine("AutoType v2.0.0 beta <URL will go here.>");
             Environment.Exit((int)ExitCode.OK);
         }
 
@@ -103,6 +103,8 @@ namespace AutoType
                 {
                     ConsoleKeyInfo key = Console.ReadKey(true);
                     if (!memorizationMode || key.KeyChar == (char)fileAsText.Peek() || (overrideEnabled && overrideCharacter == key.KeyChar))
+                        Console.Write((char)fileAsText.Read());
+                    if (fileAsText.Peek() == '\n' && (!memorizationMode || key.KeyChar == '\r' || (overrideEnabled && key.KeyChar == overrideCharacter)) && Environment.NewLine == "\r\n")
                         Console.Write((char)fileAsText.Read());
                 }
                 fileAsText.Close();
