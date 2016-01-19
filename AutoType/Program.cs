@@ -64,7 +64,7 @@ namespace AutoType
 
         static void Version( )
         {
-            Console.WriteLine("AutoType v2.0.0 beta <URL will go here.>");
+            Console.WriteLine("AutoType v2.0.0 beta https://github.com/benjidial/AutoType/releases/tag/v2.0.0-beta1");
             Environment.Exit((int)ExitCode.OK);
         }
 
